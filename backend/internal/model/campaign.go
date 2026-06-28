@@ -11,13 +11,14 @@ const (
 )
 
 type Campaign struct {
-	ID        string
-	Title     string
-	Budget    int
-	StartDate time.Time
-	EndDate   time.Time
-	Status    CampaignStatus
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	ID            string
+	Title         string
+	Budget        int
+	InitialBudget int
+	StartDate     time.Time
+	EndDate       time.Time
+	Status        CampaignStatus
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     *time.Time
 }

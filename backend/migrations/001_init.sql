@@ -3,8 +3,9 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE campaigns (
     id          UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     title       VARCHAR(255) NOT NULL,
-    budget      INTEGER      NOT NULL CHECK (budget >= 0),
-    start_date  DATE         NOT NULL,
+    budget         INTEGER      NOT NULL CHECK (budget >= 0),
+    initial_budget INTEGER      NOT NULL DEFAULT 0,
+    start_date     DATE         NOT NULL,
     end_date    DATE         NOT NULL,
     status      VARCHAR      NOT NULL DEFAULT 'active'
                              CHECK (status IN ('active', 'paused', 'completed')),
