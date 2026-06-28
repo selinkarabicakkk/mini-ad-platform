@@ -99,3 +99,8 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **AI Decision:** CampaignList now shows 3 summary stat cards at the top (Total / Active / Paused) computed from the fetched data. Table gained a "Budget Used" mini progress bar column (teal fill, percent label) computed from `initial_budget - budget`. Row hover reveals "View →" link via CSS opacity transition.
 **AI Decision:** CampaignDetail gained a "Budget Overview" card with a teal progress bar (`remaining / initial_budget`), three budget metrics (Initial / Used / Remaining), and a "Live Statistics" section with color-coded stat cards (teal / amber / emerald). Animated green pulse dot shows the 3s auto-refresh visually.
 **AI Decision:** NewCampaign form extracted a `Field` wrapper component for label + error. Budget field got a hint line explaining the impression unit. Select options now include descriptions. All focus rings changed to `teal-500`.
+
+### Prompt 17 — Frontend: Remove "Race-safe by design" box from New Campaign form
+**Prompt:** Remove the "RACE-SAFE BY DESIGN" teal info box from the New Campaign page's right info panel — it's an implementation detail, not user-facing information.
+**Outcome:** Box removed. TypeScript build passes. "How it works" card remains, grid layout unchanged.
+**My Decision:** Correct call — users don't need to see atomic SQL internals. Natural platform behaviour should be invisible.

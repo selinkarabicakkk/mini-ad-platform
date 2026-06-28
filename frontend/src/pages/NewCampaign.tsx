@@ -160,12 +160,6 @@ export default function NewCampaign() {
           </ol>
         </div>
 
-        <div className="bg-teal-50 rounded-2xl ring-1 ring-teal-100 p-5">
-          <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-2">Race-safe by design</p>
-          <p className="text-xs text-teal-600 leading-relaxed">
-            Budget deduction is a single atomic SQL statement — hundreds of concurrent impressions cannot double-spend. Budget will never go negative.
-          </p>
-        </div>
       </div>
 
       </div>
