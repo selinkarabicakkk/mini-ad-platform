@@ -11,14 +11,14 @@ const (
 )
 
 type Campaign struct {
-	ID            string
-	Title         string
-	Budget        int
-	InitialBudget int
-	StartDate     time.Time
-	EndDate       time.Time
-	Status        CampaignStatus
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	DeletedAt     *time.Time
+	ID            string         `json:"id"`
+	Title         string         `json:"title"`
+	Budget        int            `json:"budget"`
+	InitialBudget int            `json:"initial_budget"`
+	StartDate     time.Time      `json:"start_date"`
+	EndDate       time.Time      `json:"end_date"`
+	Status        CampaignStatus `json:"status"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     *time.Time     `json:"-"`
 }

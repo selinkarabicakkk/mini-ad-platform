@@ -31,3 +31,9 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Prompt:** Implement service layer wrapping repository. Add session logging rule to CLAUDE.md.
 **Outcome:** campaign_service.go created with 7 methods. Session logging section added to root CLAUDE.md.
 **Notes:** Service is intentionally thin — all invariants enforced at DB level per architecture rules. RecordImpression propagates ErrBudgetExhausted from repository unchanged.
+
+### Prompt 6 — HTTP Handlers
+**Prompt:** Implement all HTTP handlers in campaign_handler.go using chi router. 7 endpoints including POST /impression/:id with 409/404 distinction.
+**Outcome:** campaign_handler.go with CampaignHandler, RegisterRoutes, 7 handler methods, request structs, and helper functions. json tags added to model.Campaign.
+**AI Decision I Accepted:** For POST /impression/:id, DeductBudget returns ErrBudgetExhausted for both "not found" and "budget is 0" cases (indistinguishable at SQL level). AI performs a secondary GetCampaign call on the error path only to distinguish 404 vs 409. Happy path (atomic deduction) is unaffected.
+**AI Decision I Accepted:** chi was listed as indirect in go.mod — AI promoted it to direct via go get after the import was added to the handler.
