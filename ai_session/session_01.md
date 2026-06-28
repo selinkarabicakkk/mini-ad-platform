@@ -82,3 +82,20 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **AI Decision:** Frontend Dockerfile bakes VITE_API_URL=/api at build time (ARG), so browser API calls go through nginx proxy on port 5173. .env.example keeps http://localhost:8080/api for local vite dev mode.
 **AI Fix Applied:** docker-compose.yml had SERVER_PORT passed to the backend container, but main.go reads PORT. Fixed to PORT. Frontend port mapping changed from 5173:5173 to 5173:80 (nginx listens on 80 inside the container).
 **Notes:** Database migrations are not run automatically — must be applied manually via `docker exec` or a migration tool before first use.
+
+### Prompt 15 — Backend: Validation Fix, Expired Campaign Auto-Complete, Rate Limiting
+**Prompt:** Fix three backend gaps: (1) budget=-5 on create returns "required fields" instead of a specific error; (2) campaigns with past end_date stay "active" forever; (3) impression endpoint has no rate limiting.
+**Outcome:** All three fixed. `go build ./...` and `go test -race ./...` pass cleanly.
+**AI Decision:** Validation split into two separate `if` blocks — required fields check and `budget < 0` check — so each returns a specific 422 message. Same guard added to UpdateCampaign.
+**AI Decision:** `MarkExpiredCampaigns` added as an atomic SQL method (`UPDATE … WHERE end_date < now() AND status = 'active'`) called by a background goroutine in main.go with a 1-minute ticker. Goroutine cancels cleanly via `context.WithCancel` before graceful shutdown.
+**AI Decision:** Per-IP fixed-window rate limiter (10 req/s) implemented in `internal/middleware/ratelimit.go` using stdlib `sync.Mutex` + map — no new dependency. Applied only to `POST /impression/:id` via chi's `.With()`. `RegisterRoutes` signature extended to accept `impressionLimiter func(http.Handler) http.Handler`.
+**My Fix:** None — all decisions were AI-made and accepted.
+
+### Prompt 16 — Frontend: GoWit-Branded UI Overhaul
+**Prompt:** Improve the frontend UI: make it look like GoWit's own product by drawing from gowit.com's design language. Commit and update session log.
+**Outcome:** Complete visual overhaul. TypeScript build passes (tsc -b && vite build) with 0 errors.
+**AI Decision:** Added persistent sticky nav in App.tsx (`Layout` component) with GoWit logo (teal rounded square + wordmark), "Ad Platform" label, and global "+ New Campaign" CTA — consistent across all pages.
+**AI Decision:** Replaced all blue with GoWit's teal (`teal-600`) as primary accent. Status badges redesigned as pill-shaped with colored dot indicators (emerald/amber/slate). Loading states replaced with spinning ring animation.
+**AI Decision:** CampaignList now shows 3 summary stat cards at the top (Total / Active / Paused) computed from the fetched data. Table gained a "Budget Used" mini progress bar column (teal fill, percent label) computed from `initial_budget - budget`. Row hover reveals "View →" link via CSS opacity transition.
+**AI Decision:** CampaignDetail gained a "Budget Overview" card with a teal progress bar (`remaining / initial_budget`), three budget metrics (Initial / Used / Remaining), and a "Live Statistics" section with color-coded stat cards (teal / amber / emerald). Animated green pulse dot shows the 3s auto-refresh visually.
+**AI Decision:** NewCampaign form extracted a `Field` wrapper component for label + error. Budget field got a hint line explaining the impression unit. Select options now include descriptions. All focus rings changed to `teal-500`.

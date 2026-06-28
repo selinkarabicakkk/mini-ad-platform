@@ -17,22 +17,28 @@ const schema = z.object({
   { message: 'End date must be after start date', path: ['end_date'] },
 )
 
-type FormInput = z.input<typeof schema>
+type FormInput  = z.input<typeof schema>
 type FormValues = z.output<typeof schema>
 
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+      {children}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  )
+}
+
 const inputClass = (hasError: boolean) =>
-  `w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-    hasError ? 'border-red-400' : 'border-gray-300'
+  `w-full px-3 py-2.5 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-shadow ${
+    hasError ? 'border-red-400 bg-red-50/30' : 'border-gray-200 hover:border-gray-300'
   }`
 
 export default function NewCampaign() {
   const navigate = useNavigate()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormInput, unknown, FormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { status: 'active' },
   })
@@ -45,39 +51,30 @@ export default function NewCampaign() {
   const onSubmit = (data: FormValues) => mutation.mutate(data)
 
   const apiError = mutation.isError
-    ? ((mutation.error as AxiosError<{ error: string }>)?.response?.data?.error
-        ?? 'Failed to create campaign.')
+    ? ((mutation.error as AxiosError<{ error: string }>)?.response?.data?.error ?? 'Failed to create campaign.')
     : null
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-6">New Campaign</h1>
+    <div className="max-w-2xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">New Campaign</h1>
+        <p className="text-sm text-gray-500 mt-1">Set up a new ad campaign with budget and schedule</p>
+      </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div className="space-y-5">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  {...register('title')}
-                  className={inputClass(!!errors.title)}
-                  placeholder="Campaign title"
-                />
-                {errors.title && (
-                  <p className="text-xs text-red-500 mt-1">{errors.title.message}</p>
-                )}
-              </div>
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 p-8">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div className="space-y-6">
+            <Field label="Campaign Title" error={errors.title?.message}>
+              <input
+                type="text"
+                {...register('title')}
+                className={inputClass(!!errors.title)}
+                placeholder="e.g. Summer Sale 2026"
+              />
+            </Field>
 
-              {/* Budget */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Budget
-                </label>
+            <Field label="Budget" error={errors.budget?.message}>
+              <div className="relative">
                 <input
                   type="number"
                   {...register('budget')}
@@ -85,84 +82,58 @@ export default function NewCampaign() {
                   placeholder="0"
                   min={1}
                 />
-                {errors.budget && (
-                  <p className="text-xs text-red-500 mt-1">{errors.budget.message}</p>
-                )}
               </div>
+              <p className="text-xs text-gray-400 mt-1">Number of impressions this campaign can serve</p>
+            </Field>
 
-              {/* Dates — side by side */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    {...register('start_date')}
-                    className={inputClass(!!errors.start_date)}
-                  />
-                  {errors.start_date && (
-                    <p className="text-xs text-red-500 mt-1">{errors.start_date.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    {...register('end_date')}
-                    className={inputClass(!!errors.end_date)}
-                  />
-                  {errors.end_date && (
-                    <p className="text-xs text-red-500 mt-1">{errors.end_date.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  {...register('status')}
-                  className={inputClass(!!errors.status)}
-                >
-                  <option value="active">Active</option>
-                  <option value="paused">Paused</option>
-                </select>
-                {errors.status && (
-                  <p className="text-xs text-red-500 mt-1">{errors.status.message}</p>
-                )}
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Start Date" error={errors.start_date?.message}>
+                <input
+                  type="date"
+                  {...register('start_date')}
+                  className={inputClass(!!errors.start_date)}
+                />
+              </Field>
+              <Field label="End Date" error={errors.end_date?.message}>
+                <input
+                  type="date"
+                  {...register('end_date')}
+                  className={inputClass(!!errors.end_date)}
+                />
+              </Field>
             </div>
 
-            {/* API error */}
-            {apiError && (
-              <p className="text-sm text-red-500 mt-4">{apiError}</p>
-            )}
+            <Field label="Initial Status" error={errors.status?.message}>
+              <select {...register('status')} className={inputClass(!!errors.status)}>
+                <option value="active">Active — starts serving immediately</option>
+                <option value="paused">Paused — save for later</option>
+              </select>
+            </Field>
+          </div>
 
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={mutation.isPending}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                {mutation.isPending ? 'Creating...' : 'Create Campaign'}
-              </button>
+          {apiError && (
+            <div className="mt-6 p-3 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-sm text-red-600">{apiError}</p>
             </div>
-          </form>
-        </div>
+          )}
+
+          <div className="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="px-4 py-2.5 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="px-6 py-2.5 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-50 transition-colors"
+            >
+              {mutation.isPending ? 'Creating...' : 'Create Campaign'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

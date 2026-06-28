@@ -3,16 +3,24 @@ import { useQuery } from '@tanstack/react-query'
 import { getCampaign, getStats } from '../api/campaigns'
 import type { CampaignStatus } from '../types/campaign'
 
-function statusBadgeClass(status: CampaignStatus): string {
-  switch (status) {
-    case 'active':    return 'bg-green-100 text-green-800'
-    case 'paused':    return 'bg-yellow-100 text-yellow-800'
-    case 'completed': return 'bg-gray-100 text-gray-700'
-  }
+const STATUS_STYLES: Record<CampaignStatus, { badge: string; dot: string }> = {
+  active:    { badge: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200', dot: 'bg-emerald-500' },
+  paused:    { badge: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',       dot: 'bg-amber-500'   },
+  completed: { badge: 'bg-slate-100 text-slate-600 ring-1 ring-slate-200',      dot: 'bg-slate-400'   },
+}
+
+function StatusBadge({ status }: { status: CampaignStatus }) {
+  const s = STATUS_STYLES[status]
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${s.badge}`}>
+      <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </span>
+  )
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-CA')
+  return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 export default function CampaignDetail() {
@@ -29,78 +37,107 @@ export default function CampaignDetail() {
     refetchInterval: 3000,
   })
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-6 transition-colors"
-        >
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (isError || !campaign) {
+    return (
+      <div className="py-32 text-center">
+        <p className="text-gray-400 text-sm">Campaign not found.</p>
+        <Link to="/" className="mt-3 inline-block text-sm text-teal-600 hover:text-teal-700 font-medium">
           ← Back to Campaigns
         </Link>
+      </div>
+    )
+  }
 
-        {isLoading && (
-          <div className="py-16 text-center text-gray-500 text-sm">Loading...</div>
-        )}
+  const budgetUsed = campaign.initial_budget - campaign.budget
+  const budgetPct  = campaign.initial_budget > 0
+    ? Math.round((campaign.budget / campaign.initial_budget) * 100)
+    : 0
 
-        {isError && (
-          <div className="py-16 text-center text-red-500 text-sm">Campaign not found.</div>
-        )}
+  return (
+    <div>
+      {/* Back link */}
+      <Link to="/" className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 mb-8 transition-colors">
+        ← Campaigns
+      </Link>
 
-        {campaign && (
-          <>
-            {/* Page heading */}
-            <div className="flex items-center gap-3 mb-6">
-              <h1 className="text-2xl font-semibold text-gray-900">{campaign.title}</h1>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass(campaign.status)}`}>
-                {campaign.status}
-              </span>
-            </div>
+      {/* Header */}
+      <div className="flex items-start gap-4 mb-8">
+        <div>
+          <div className="flex items-center gap-3 mb-1.5">
+            <h1 className="text-2xl font-bold text-gray-900">{campaign.title}</h1>
+            <StatusBadge status={campaign.status} />
+          </div>
+          <p className="text-sm text-gray-400">
+            {formatDate(campaign.start_date)} — {formatDate(campaign.end_date)}
+          </p>
+        </div>
+      </div>
 
-            {/* Campaign info */}
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-              <div className="grid grid-cols-3 gap-6">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Start Date</p>
-                  <p className="text-sm font-medium text-gray-900">{formatDate(campaign.start_date)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">End Date</p>
-                  <p className="text-sm font-medium text-gray-900">{formatDate(campaign.end_date)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Initial Budget</p>
-                  <p className="text-sm font-medium text-gray-900">{campaign.initial_budget.toLocaleString()}</p>
-                </div>
-              </div>
-            </div>
+      {/* Budget overview card */}
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 p-6 mb-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-700">Budget Overview</h2>
+          <span className="text-sm text-gray-400 tabular-nums">{budgetPct}% remaining</span>
+        </div>
+        <div className="w-full bg-gray-100 rounded-full h-2.5">
+          <div
+            className="bg-teal-500 h-2.5 rounded-full transition-all duration-500"
+            style={{ width: `${budgetPct}%` }}
+          />
+        </div>
+        <div className="grid grid-cols-3 gap-6 mt-6 pt-5 border-t border-gray-50">
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Initial Budget</p>
+            <p className="text-2xl font-bold text-gray-900 tabular-nums">{campaign.initial_budget.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-amber-500 uppercase tracking-wide mb-1">Used</p>
+            <p className="text-2xl font-bold text-gray-900 tabular-nums">{budgetUsed.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-1">Remaining</p>
+            <p className="text-2xl font-bold text-gray-900 tabular-nums">{campaign.budget.toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
 
-            {/* Live stats */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-sm font-medium text-gray-500 mb-4">Live Statistics</p>
-              <div className="grid grid-cols-3 gap-6">
-                <div>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stats ? stats.total_impressions.toLocaleString() : '—'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">Total Impressions</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stats ? stats.spent_budget.toLocaleString() : '—'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">Spent Budget</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stats ? stats.remaining_budget.toLocaleString() : '—'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">Remaining Budget</p>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+      {/* Live stats card */}
+      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-sm font-semibold text-gray-700">Live Statistics</h2>
+          <span className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Updates every 3s
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="p-5 bg-teal-50 rounded-xl">
+            <p className="text-xs font-semibold text-teal-600 uppercase tracking-wide mb-3">Total Impressions</p>
+            <p className="text-4xl font-bold text-teal-700 tabular-nums">
+              {stats ? stats.total_impressions.toLocaleString() : '—'}
+            </p>
+          </div>
+          <div className="p-5 bg-amber-50 rounded-xl">
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-3">Spent Budget</p>
+            <p className="text-4xl font-bold text-amber-700 tabular-nums">
+              {stats ? stats.spent_budget.toLocaleString() : '—'}
+            </p>
+          </div>
+          <div className="p-5 bg-emerald-50 rounded-xl">
+            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-3">Remaining Budget</p>
+            <p className="text-4xl font-bold text-emerald-700 tabular-nums">
+              {stats ? stats.remaining_budget.toLocaleString() : '—'}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
