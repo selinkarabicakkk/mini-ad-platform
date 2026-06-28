@@ -26,3 +26,8 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **AI Decision I Accepted:** AI added initial_budget column to schema because the original schema had no way to compute TotalImpressions (budget is mutable). Correct observation — accepted.
 **AI Decision I Accepted:** AI used typed UpdateCampaignParams struct instead of map[string]any to avoid SQL injection risk. Correct approach — accepted.
 **Critical Check:** DeductBudget uses exactly the required atomic UPDATE with RETURNING — no SELECT+UPDATE pattern. Verified correct.
+
+### Prompt 5 — Campaign Service Layer
+**Prompt:** Implement service layer wrapping repository. Add session logging rule to CLAUDE.md.
+**Outcome:** campaign_service.go created with 7 methods. Session logging section added to root CLAUDE.md.
+**Notes:** Service is intentionally thin — all invariants enforced at DB level per architecture rules. RecordImpression propagates ErrBudgetExhausted from repository unchanged.

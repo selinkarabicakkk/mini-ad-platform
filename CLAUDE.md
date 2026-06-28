@@ -29,3 +29,9 @@ Types: feat, fix, refactor, test, chore, docs
 ## Environment
 Copy .env.example to .env before starting.
 Run everything: docker-compose up --build
+
+## Session Logging
+- After every completed feature, append a log entry to ai_session/session_01.md
+- Log format: ### Prompt N — Feature Name, then: Prompt, Outcome, AI Decision or Error, My Fix
+- All log entries in English
+- Log must be updated before every commit
