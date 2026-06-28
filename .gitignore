@@ -1,0 +1,19 @@
+# Go
+backend/bin/
+backend/*.exe
+backend/vendor/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Claude local overrides
+CLAUDE.local.md
