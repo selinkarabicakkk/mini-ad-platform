@@ -55,13 +55,14 @@ export default function NewCampaign() {
     : null
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">New Campaign</h1>
         <p className="text-sm text-gray-500 mt-1">Set up a new ad campaign with budget and schedule</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 p-8">
+      <div className="grid grid-cols-5 gap-8 items-start">
+      <div className="col-span-3 bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 p-8">
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="space-y-6">
             <Field label="Campaign Title" error={errors.title?.message}>
@@ -134,6 +135,39 @@ export default function NewCampaign() {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* Info panel */}
+      <div className="col-span-2 space-y-4">
+        <div className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 p-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-4">How it works</h3>
+          <ol className="space-y-4">
+            {[
+              { step: '1', title: 'Set your budget', desc: 'Budget = total impressions your campaign can serve. Each ad display deducts 1 unit.' },
+              { step: '2', title: 'Define your schedule', desc: 'Campaigns automatically complete when end date passes.' },
+              { step: '3', title: 'Track in real time', desc: 'Monitor impressions, spend, and remaining budget live from the campaign detail page.' },
+            ].map(item => (
+              <li key={item.step} className="flex gap-3">
+                <span className="w-6 h-6 rounded-full bg-teal-50 text-teal-600 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {item.step}
+                </span>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{item.title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="bg-teal-50 rounded-2xl ring-1 ring-teal-100 p-5">
+          <p className="text-xs font-semibold text-teal-700 uppercase tracking-wide mb-2">Race-safe by design</p>
+          <p className="text-xs text-teal-600 leading-relaxed">
+            Budget deduction is a single atomic SQL statement — hundreds of concurrent impressions cannot double-spend. Budget will never go negative.
+          </p>
+        </div>
+      </div>
+
       </div>
     </div>
   )
