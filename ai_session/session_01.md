@@ -70,3 +70,8 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Prompt:** Implement CampaignDetail.tsx — useParams for id, useQuery for campaign data, useQuery with refetchInterval: 3000 for stats (GET /stats/:id). Display campaign heading + status badge, info card (Start Date, End Date, Initial Budget), and stats section with 3 large-number cards (Total Impressions, Spent Budget, Remaining Budget). Add getStats to api/campaigns.ts and CampaignStats to types/campaign.ts.
 **Outcome:** All three files updated. TypeScript build passes with 0 errors.
 **Notes:** Stats query is independent from the campaign query — shows `—` while loading, then live-updates every 3s via refetchInterval. Both queries share the same `id` from useParams.
+
+### Prompt 13 — k6 Load Test: Concurrent Impression Endpoint
+**Prompt:** Create load-test/impression_load.js targeting POST /api/impression/:id. Ramp to 200 VUs over 10s, hold 30s, ramp down. Thresholds: unexpected_errors < 1% and http_req_failed < 1%. 200 = recorded, 409 = expected exhaustion (not counted as error), anything else = unexpected error logged to console. Also create load-test/README.md.
+**Outcome:** Both files created. k6 not installed locally so dry-run skipped; script uses standard k6 APIs (http, check, Rate from k6/metrics).
+**Notes:** Custom Rate metric `unexpected_errors` cleanly handles both requirements ("never 500" and "error rate < 1% excluding 409s") in a single threshold. k6's check() shows per-outcome counts in the end-of-run summary without per-VU console noise.
