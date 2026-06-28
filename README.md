@@ -8,7 +8,7 @@ A B2B campaign management platform for tracking ad budgets and recording impress
 
 | Layer | Technology |
 |-------|-----------|
-| Backend | Go 1.22, chi router, pgx/v5, PostgreSQL 15 |
+| Backend | Go 1.25, chi router, pgx/v5, PostgreSQL 15 |
 | Frontend | React 19, TypeScript, Vite, TanStack Query v5, React Hook Form, Zod, Tailwind CSS v4 |
 | Infrastructure | Docker Compose, nginx |
 | Load test | k6 |
