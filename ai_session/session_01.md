@@ -75,3 +75,10 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Prompt:** Create load-test/impression_load.js targeting POST /api/impression/:id. Ramp to 200 VUs over 10s, hold 30s, ramp down. Thresholds: unexpected_errors < 1% and http_req_failed < 1%. 200 = recorded, 409 = expected exhaustion (not counted as error), anything else = unexpected error logged to console. Also create load-test/README.md.
 **Outcome:** Both files created. k6 not installed locally so dry-run skipped; script uses standard k6 APIs (http, check, Rate from k6/metrics).
 **Notes:** Custom Rate metric `unexpected_errors` cleanly handles both requirements ("never 500" and "error rate < 1% excluding 409s") in a single threshold. k6's check() shows per-outcome counts in the end-of-run summary without per-VU console noise.
+
+### Prompt 14 — Docker Compose: One-Command Startup
+**Prompt:** Create backend/Dockerfile (multi-stage Go), frontend/Dockerfile (node builder + nginx runtime), frontend/nginx.conf (proxy /api to backend:8080, SPA fallback). Update docker-compose.yml and .env.example. Create .env for local dev.
+**Outcome:** All files created/updated. `docker compose config` validates successfully.
+**AI Decision:** Frontend Dockerfile bakes VITE_API_URL=/api at build time (ARG), so browser API calls go through nginx proxy on port 5173. .env.example keeps http://localhost:8080/api for local vite dev mode.
+**AI Fix Applied:** docker-compose.yml had SERVER_PORT passed to the backend container, but main.go reads PORT. Fixed to PORT. Frontend port mapping changed from 5173:5173 to 5173:80 (nginx listens on 80 inside the container).
+**Notes:** Database migrations are not run automatically — must be applied manually via `docker exec` or a migration tool before first use.
