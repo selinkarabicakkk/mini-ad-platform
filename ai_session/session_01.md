@@ -48,3 +48,9 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Prompt:** Write tests in backend/tests/ for concurrent impression deduction and basic service methods. Stdlib only.
 **Outcome:** campaign_service_test.go with 3 tests. All pass including race detector (go test -race ./...).
 **Notes:** Used function-field mock struct implementing CampaignRepository. TestRecordImpression_Concurrent launches 100 goroutines against a budget-50 mock; asserts exactly 50 succeed and 50 get ErrBudgetExhausted with zero other errors.
+
+### Prompt 9 — Frontend: Vite + React + TypeScript Scaffold
+**Prompt:** Scaffold frontend/ with Vite (react-ts template), install TanStack Query v5, axios, react-router-dom, react-hook-form, zod, @hookform/resolvers, tailwindcss. Configure Tailwind v4 via @tailwindcss/vite plugin. Set up QueryClientProvider in main.tsx, React Router with 3 routes in App.tsx. Create src/types/campaign.ts mirroring backend model and src/api/campaigns.ts with axios instance reading VITE_API_URL.
+**Outcome:** Frontend scaffolded. All dependencies installed (87 packages, 0 vulnerabilities). TypeScript build passes (tsc -b && vite build) with no errors. 3 placeholder page components created.
+**AI Decision:** `npm create vite@latest . --` cancelled when run non-interactively (create-vite uses @clack/prompts which requires a TTY). Scaffolded into /tmp/mini-ad-frontend first, then copied into frontend/. No other issues.
+**Notes:** Using Tailwind v4 approach: @tailwindcss/vite plugin in vite.config.ts + @import "tailwindcss" in index.css — no tailwind.config.js needed.
