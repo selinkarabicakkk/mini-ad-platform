@@ -43,3 +43,8 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Outcome:** main.go implemented with full startup sequence and 30s graceful shutdown. Chi middleware stack: RequestID, RealIP, Logger, Recoverer.
 **AI Fix Applied:** RegisterRoutes had /api prefix in all paths — would have double-prefixed to /api/api/... when used with r.Route("/api", ...). Stripped /api from the 7 route paths in campaign_handler.go. Final URLs unchanged.
 **Notes:** DATABASE_URL is required (log.Fatal if missing). PORT defaults to 8080.
+
+### Prompt 8 — Go Tests (Concurrent + Service)
+**Prompt:** Write tests in backend/tests/ for concurrent impression deduction and basic service methods. Stdlib only.
+**Outcome:** campaign_service_test.go with 3 tests. All pass including race detector (go test -race ./...).
+**Notes:** Used function-field mock struct implementing CampaignRepository. TestRecordImpression_Concurrent launches 100 goroutines against a budget-50 mock; asserts exactly 50 succeed and 50 get ErrBudgetExhausted with zero other errors.
