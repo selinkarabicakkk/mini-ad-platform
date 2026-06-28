@@ -65,3 +65,8 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Outcome:** Full form implemented with all validation rules. TypeScript build passes with 0 errors.
 **AI Error:** First build failed — `z.coerce.number()` causes a type mismatch between Zod's input type (`unknown`) and output type (`number`), which conflicts with `useForm<FormValues>` expecting a single type. Fixed by splitting into `z.input<typeof schema>` / `z.output<typeof schema>` and using the three-generic `useForm<FormInput, unknown, FormValues>` signature.
 **My Fix:** N/A — AI detected and corrected immediately on build failure.
+
+### Prompt 12 — Campaign Detail Page with Live Stats
+**Prompt:** Implement CampaignDetail.tsx — useParams for id, useQuery for campaign data, useQuery with refetchInterval: 3000 for stats (GET /stats/:id). Display campaign heading + status badge, info card (Start Date, End Date, Initial Budget), and stats section with 3 large-number cards (Total Impressions, Spent Budget, Remaining Budget). Add getStats to api/campaigns.ts and CampaignStats to types/campaign.ts.
+**Outcome:** All three files updated. TypeScript build passes with 0 errors.
+**Notes:** Stats query is independent from the campaign query — shows `—` while loading, then live-updates every 3s via refetchInterval. Both queries share the same `id` from useParams.

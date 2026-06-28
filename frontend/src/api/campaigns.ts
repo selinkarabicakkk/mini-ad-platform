@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Campaign, CreateCampaignRequest, UpdateCampaignRequest } from '../types/campaign'
+import type { Campaign, CreateCampaignRequest, UpdateCampaignRequest, CampaignStats } from '../types/campaign'
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_URL })
 
@@ -20,3 +20,6 @@ export const deleteCampaign = (id: string) =>
 
 export const recordImpression = (id: string) =>
   api.post(`/impression/${id}`)
+
+export const getStats = (id: string) =>
+  api.get<CampaignStats>(`/stats/${id}`).then(r => r.data)

@@ -27,3 +27,9 @@ export interface UpdateCampaignRequest {
   end_date?: string
   status?: CampaignStatus
 }
+
+export interface CampaignStats {
+  total_impressions: number
+  spent_budget: number
+  remaining_budget: number
+}
