@@ -59,3 +59,9 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Prompt:** Fix updateCampaign from PATCH to PUT to match the backend route. Implement CampaignList.tsx as a full page: useQuery, table with Title/Status/Budget/Start Date/End Date/Actions columns, status colored badges (green/yellow/gray), filter tabs (All/Active/Paused/Completed), New Campaign button, View button per row, loading/error/empty states. Tailwind CSS styling.
 **Outcome:** updateCampaign fixed (patch → put). CampaignList.tsx fully implemented with all required features. TypeScript build passes (tsc -b && vite build) with 0 errors.
 **Notes:** Filter is client-side (one useQuery, filter the array in the component). Date formatting uses toLocaleDateString('en-CA') to get YYYY-MM-DD output from ISO strings.
+
+### Prompt 11 — New Campaign Form Page
+**Prompt:** Implement NewCampaign.tsx with React Hook Form + Zod validation (title min 1, budget coerced integer min 1, start_date/end_date required with end > start cross-field refine, status enum active|paused). useMutation calling createCampaign, navigate('/') on success, error extracted from Axios response body. Loading state on submit button.
+**Outcome:** Full form implemented with all validation rules. TypeScript build passes with 0 errors.
+**AI Error:** First build failed — `z.coerce.number()` causes a type mismatch between Zod's input type (`unknown`) and output type (`number`), which conflicts with `useForm<FormValues>` expecting a single type. Fixed by splitting into `z.input<typeof schema>` / `z.output<typeof schema>` and using the three-generic `useForm<FormInput, unknown, FormValues>` signature.
+**My Fix:** N/A — AI detected and corrected immediately on build failure.
