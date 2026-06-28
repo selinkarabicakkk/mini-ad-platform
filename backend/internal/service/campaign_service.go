@@ -42,3 +42,7 @@ func (s *CampaignService) RecordImpression(ctx context.Context, id string) (rema
 func (s *CampaignService) GetStats(ctx context.Context, id string) (repository.Stats, error) {
 	return s.repo.GetStats(ctx, id)
 }
+
+func (s *CampaignService) MarkExpiredCampaigns(ctx context.Context) error {
+	return s.repo.MarkExpiredCampaigns(ctx)
+}

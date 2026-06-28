@@ -46,6 +46,10 @@ func (m *mockRepo) GetStats(ctx context.Context, id string) (repository.Stats, e
 	return m.getStatsFn(ctx, id)
 }
 
+func (m *mockRepo) MarkExpiredCampaigns(ctx context.Context) error {
+	return nil
+}
+
 func TestRecordImpression_Concurrent(t *testing.T) {
 	const budget = 50
 	const goroutines = 100

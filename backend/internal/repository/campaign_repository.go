@@ -36,6 +36,7 @@ type CampaignRepository interface {
 	SoftDelete(ctx context.Context, id string) error
 	DeductBudget(ctx context.Context, id string) (remainingBudget int, err error)
 	GetStats(ctx context.Context, id string) (Stats, error)
+	MarkExpiredCampaigns(ctx context.Context) error
 }
 
 type postgresRepo struct {
@@ -175,6 +176,15 @@ func (r *postgresRepo) DeductBudget(ctx context.Context, id string) (int, error)
 		return 0, ErrBudgetExhausted
 	}
 	return remainingBudget, err
+}
+
+func (r *postgresRepo) MarkExpiredCampaigns(ctx context.Context) error {
+	_, err := r.pool.Exec(ctx, `
+		UPDATE campaigns
+		SET status = 'completed', updated_at = now()
+		WHERE end_date < now() AND status = 'active' AND deleted_at IS NULL
+	`)
+	return err
 }
 
 func (r *postgresRepo) GetStats(ctx context.Context, id string) (Stats, error) {

@@ -11,9 +11,10 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/selinkarabicakkk/mini-ad-platform/backend/internal/handler"
+	appmiddleware "github.com/selinkarabicakkk/mini-ad-platform/backend/internal/middleware"
 	"github.com/selinkarabicakkk/mini-ad-platform/backend/internal/repository"
 	"github.com/selinkarabicakkk/mini-ad-platform/backend/internal/service"
 )
@@ -45,14 +46,32 @@ func main() {
 	svc := service.NewCampaignService(repo)
 	h := handler.NewCampaignHandler(svc)
 
+	limiter := appmiddleware.NewRateLimiter(10, time.Second)
+
+	expireCtx, expireCancel := context.WithCancel(context.Background())
+	go func() {
+		ticker := time.NewTicker(time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				if err := svc.MarkExpiredCampaigns(expireCtx); err != nil {
+					log.Printf("mark expired campaigns: %v", err)
+				}
+			case <-expireCtx.Done():
+				return
+			}
+		}
+	}()
+
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.RealIP)
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
 
 	r.Route("/api", func(r chi.Router) {
-		h.RegisterRoutes(r)
+		h.RegisterRoutes(r, limiter.Middleware)
 	})
 
 	srv := &http.Server{
@@ -72,6 +91,7 @@ func main() {
 	<-quit
 
 	log.Println("shutting down server...")
+	expireCancel()
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

@@ -29,13 +29,13 @@ func NewCampaignHandler(svc *service.CampaignService) *CampaignHandler {
 	return &CampaignHandler{svc: svc}
 }
 
-func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
+func (h *CampaignHandler) RegisterRoutes(r chi.Router, impressionLimiter func(http.Handler) http.Handler) {
 	r.Post("/campaigns", h.CreateCampaign)
 	r.Get("/campaigns", h.ListCampaigns)
 	r.Get("/campaigns/{id}", h.GetCampaign)
 	r.Put("/campaigns/{id}", h.UpdateCampaign)
 	r.Delete("/campaigns/{id}", h.DeleteCampaign)
-	r.Post("/impression/{id}", h.RecordImpression)
+	r.With(impressionLimiter).Post("/impression/{id}", h.RecordImpression)
 	r.Get("/stats/{id}", h.GetStats)
 }
 
@@ -75,8 +75,12 @@ func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request)
 		writeError(w, http.StatusUnprocessableEntity, "invalid request body")
 		return
 	}
-	if req.Title == "" || req.Budget < 0 || req.StartDate == "" || req.EndDate == "" {
-		writeError(w, http.StatusUnprocessableEntity, "title, budget, start_date, end_date are required")
+	if req.Title == "" || req.StartDate == "" || req.EndDate == "" {
+		writeError(w, http.StatusUnprocessableEntity, "title, start_date, end_date are required")
+		return
+	}
+	if req.Budget < 0 {
+		writeError(w, http.StatusUnprocessableEntity, "budget must be >= 0")
 		return
 	}
 	start, err := parseDateParam(req.StartDate)
@@ -160,6 +164,10 @@ func (h *CampaignHandler) UpdateCampaign(w http.ResponseWriter, r *http.Request)
 		params.Title = req.Title
 	}
 	if req.Budget != nil {
+		if *req.Budget < 0 {
+			writeError(w, http.StatusUnprocessableEntity, "budget must be >= 0")
+			return
+		}
 		params.Budget = req.Budget
 	}
 	if req.StartDate != nil {
