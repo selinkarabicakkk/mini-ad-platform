@@ -54,3 +54,8 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Outcome:** Frontend scaffolded. All dependencies installed (87 packages, 0 vulnerabilities). TypeScript build passes (tsc -b && vite build) with no errors. 3 placeholder page components created.
 **AI Decision:** `npm create vite@latest . --` cancelled when run non-interactively (create-vite uses @clack/prompts which requires a TTY). Scaffolded into /tmp/mini-ad-frontend first, then copied into frontend/. No other issues.
 **Notes:** Using Tailwind v4 approach: @tailwindcss/vite plugin in vite.config.ts + @import "tailwindcss" in index.css — no tailwind.config.js needed.
+
+### Prompt 10 — Campaign List Page + API Fix
+**Prompt:** Fix updateCampaign from PATCH to PUT to match the backend route. Implement CampaignList.tsx as a full page: useQuery, table with Title/Status/Budget/Start Date/End Date/Actions columns, status colored badges (green/yellow/gray), filter tabs (All/Active/Paused/Completed), New Campaign button, View button per row, loading/error/empty states. Tailwind CSS styling.
+**Outcome:** updateCampaign fixed (patch → put). CampaignList.tsx fully implemented with all required features. TypeScript build passes (tsc -b && vite build) with 0 errors.
+**Notes:** Filter is client-side (one useQuery, filter the array in the component). Date formatting uses toLocaleDateString('en-CA') to get YYYY-MM-DD output from ISO strings.

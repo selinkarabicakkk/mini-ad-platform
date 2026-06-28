@@ -13,7 +13,7 @@ export const createCampaign = (body: CreateCampaignRequest) =>
   api.post<Campaign>('/campaigns', body).then(r => r.data)
 
 export const updateCampaign = (id: string, body: UpdateCampaignRequest) =>
-  api.patch<Campaign>(`/campaigns/${id}`, body).then(r => r.data)
+  api.put<Campaign>(`/campaigns/${id}`, body).then(r => r.data)
 
 export const deleteCampaign = (id: string) =>
   api.delete(`/campaigns/${id}`)
