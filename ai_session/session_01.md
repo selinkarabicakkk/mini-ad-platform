@@ -94,13 +94,21 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 ### Prompt 16 — Frontend: GoWit-Branded UI Overhaul
 **Prompt:** Improve the frontend UI: make it look like GoWit's own product by drawing from gowit.com's design language. Commit and update session log.
 **Outcome:** Complete visual overhaul. TypeScript build passes (tsc -b && vite build) with 0 errors.
-**AI Decision:** Added persistent sticky nav in App.tsx (`Layout` component) with GoWit logo (teal rounded square + wordmark), "Ad Platform" label, and global "+ New Campaign" CTA — consistent across all pages.
+**AI Decision:** Added persistent sticky nav in App.tsx (`Layout` component) with a teal rounded square placeholder icon + wordmark, "Ad Platform" label, and global "+ New Campaign" CTA — consistent across all pages. (Logo placeholder, replaced with real favicon in Prompt 17.)
 **AI Decision:** Replaced all blue with GoWit's teal (`teal-600`) as primary accent. Status badges redesigned as pill-shaped with colored dot indicators (emerald/amber/slate). Loading states replaced with spinning ring animation.
 **AI Decision:** CampaignList now shows 3 summary stat cards at the top (Total / Active / Paused) computed from the fetched data. Table gained a "Budget Used" mini progress bar column (teal fill, percent label) computed from `initial_budget - budget`. Row hover reveals "View →" link via CSS opacity transition.
 **AI Decision:** CampaignDetail gained a "Budget Overview" card with a teal progress bar (`remaining / initial_budget`), three budget metrics (Initial / Used / Remaining), and a "Live Statistics" section with color-coded stat cards (teal / amber / emerald). Animated green pulse dot shows the 3s auto-refresh visually.
 **AI Decision:** NewCampaign form extracted a `Field` wrapper component for label + error. Budget field got a hint line explaining the impression unit. Select options now include descriptions. All focus rings changed to `teal-500`.
 
-### Prompt 17 — Frontend: Remove "Race-safe by design" box from New Campaign form
+### Prompt 17 — Frontend: Real GoWit Logo + Two-Column Campaign Form
+**Prompt:** (1) Replace hamburger SVG placeholder with the real GoWit favicon fetched from gowit.com/favicon.ico. (2) New Campaign page leaves right half empty — convert to two-column layout with an info panel on the right.
+**Outcome:** favicon.ico (15KB, multi-resolution) downloaded to `frontend/public/gowit-icon.ico`. Nav updated to `<img src="/gowit-icon.ico">`. NewCampaign converted to `grid grid-cols-5`: form on left (3 cols), "How it works" info panel on right (2 cols). TypeScript build passes.
+**AI Decision:** Used `gowit.com/favicon.ico` — only publicly accessible logo asset found on the site. Served from `/public` so Vite copies it to `dist/` at build time; no external runtime dependency.
+**AI Decision:** Right info panel shows 3-step workflow (Set budget → Define schedule → Track live) and a note about what the budget number means (impressions). This fills the whitespace intentionally, not decoratively.
+**My Fix:** None — accepted as-is.
+
+### Prompt 18 — Frontend: Remove "Race-safe by design" box from New Campaign form
 **Prompt:** Remove the "RACE-SAFE BY DESIGN" teal info box from the New Campaign page's right info panel — it's an implementation detail, not user-facing information.
 **Outcome:** Box removed. TypeScript build passes. "How it works" card remains, grid layout unchanged.
 **My Decision:** Correct call — users don't need to see atomic SQL internals. Natural platform behaviour should be invisible.
+
