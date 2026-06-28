@@ -37,3 +37,9 @@ Building the Mini Ad Platform backend in Go. Using Claude Code (claude-sonnet-4-
 **Outcome:** campaign_handler.go with CampaignHandler, RegisterRoutes, 7 handler methods, request structs, and helper functions. json tags added to model.Campaign.
 **AI Decision I Accepted:** For POST /impression/:id, DeductBudget returns ErrBudgetExhausted for both "not found" and "budget is 0" cases (indistinguishable at SQL level). AI performs a secondary GetCampaign call on the error path only to distinguish 404 vs 409. Happy path (atomic deduction) is unaffected.
 **AI Decision I Accepted:** chi was listed as indirect in go.mod — AI promoted it to direct via go get after the import was added to the handler.
+
+### Prompt 7 — Main Server + Graceful Shutdown
+**Prompt:** Implement cmd/server/main.go with env config, pgxpool, chi router with middleware, and graceful shutdown on SIGTERM/SIGINT.
+**Outcome:** main.go implemented with full startup sequence and 30s graceful shutdown. Chi middleware stack: RequestID, RealIP, Logger, Recoverer.
+**AI Fix Applied:** RegisterRoutes had /api prefix in all paths — would have double-prefixed to /api/api/... when used with r.Route("/api", ...). Stripped /api from the 7 route paths in campaign_handler.go. Final URLs unchanged.
+**Notes:** DATABASE_URL is required (log.Fatal if missing). PORT defaults to 8080.

@@ -30,13 +30,13 @@ func NewCampaignHandler(svc *service.CampaignService) *CampaignHandler {
 }
 
 func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
-	r.Post("/api/campaigns", h.CreateCampaign)
-	r.Get("/api/campaigns", h.ListCampaigns)
-	r.Get("/api/campaigns/{id}", h.GetCampaign)
-	r.Put("/api/campaigns/{id}", h.UpdateCampaign)
-	r.Delete("/api/campaigns/{id}", h.DeleteCampaign)
-	r.Post("/api/impression/{id}", h.RecordImpression)
-	r.Get("/api/stats/{id}", h.GetStats)
+	r.Post("/campaigns", h.CreateCampaign)
+	r.Get("/campaigns", h.ListCampaigns)
+	r.Get("/campaigns/{id}", h.GetCampaign)
+	r.Put("/campaigns/{id}", h.UpdateCampaign)
+	r.Delete("/campaigns/{id}", h.DeleteCampaign)
+	r.Post("/impression/{id}", h.RecordImpression)
+	r.Get("/stats/{id}", h.GetStats)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
